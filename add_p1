@@ -8,20 +8,25 @@ y = float(input())
 r = float(input())
 k = math.radians(float(input()))
 
-x_cur = l
-y_cur = 0
-dx = math.cos(k)
-dy = math.sin(k)
-n = 0
-lim = 10**5
+# записываем данные
+
+x_cur = l # переменная хранит текущую абсциссу луча
+y_cur = 0 # переменная хранит текущую ординату луча
+dx = math.cos(k) # первая производная проекции на ось абсцисс
+dy = math.sin(k) # первая производная проекции на ось ординат
+n = 0 #число отражений
+lim = 10**10 #условная бесконечность, предельное значение числа значений
 
 def cycle(x_cur, y_cur):
-    if x_cur == l and y_cur == 0:
+    #проверяет, не вернулся ли луч в исходную точку, тк если да, то пересечений не будет
+    if x_cur == l and y_cur == 0 and dx = math.cos(k) and dy = math.sin(k):
         return True
     else:
         return False
 
 def shag(x_cur, y_cur, dx, dy):
+    #вычисляет следующее положение луча
+    #еще отражает луч от стенки, те меняет ее траекторию
     if dx > 0:
         if dy > 0:
             if x_cur + (b-y_cur)*dx/dy <= a:
@@ -58,35 +63,36 @@ def shag(x_cur, y_cur, dx, dy):
                  x_cur = 0
 
 def s(x, y, x_old, y_old, x_cur, y_cur):
-        # 1. Вычисляем длину отрезка AB
-    segment_length_squared = (x_cur - x_old) ** 2 + (y_cur - y_old) ** 2
-    if segment_length_squared == 0:
-            # Отрезок выродился в точку.  Расстояние от точки до точки.
+    # функция определяет расстояние от отрезка (старое положение - новое положение) до центра окружности
+    # длина отрезка AB
+    segsq = (x_cur - x_old) ** 2 + (y_cur - y_old) ** 2
+    if segsq == 0:
+        # отрезок - точка
         return math.sqrt((x - x_old) ** 2 + (y - y_old) ** 2)
 
-        # 2. Вычисляем проекцию точки P на прямую AB
-        # t - параметр, определяющий положение проекции на прямой AB.
-        # Если t < 0, то проекция находится за пределами отрезка AB (ближе к A).
-        # Если t > 1, то проекция находится за пределами отрезка AB (ближе к B).
-    t = ((x - x_old) * (x_cur - x_old) + (y - y_old) * (y_cur - y_old)) / segment_length_squared
+        # ищем проекцию центра окр-ти на прямую
+        # t - параметр, определяющий положение проекции на прямой
+        # при t < 0, то проекция находится за пределами отрезка (ближе к старой)
+        # при t > 1, то проекция находится за пределами отрезка (ближе к новой)
+    t = ((x - x_old) * (x_cur - x_old) + (y - y_old) * (y_cur - y_old)) / segsq
 
-    # 3. Проверяем, находится ли проекция на отрезке AB
+    # находится ли проекция на отрезке
     if t < 0:
-        # Проекция находится за пределами отрезка AB (ближе к A)
-        return math.sqrt((x - x_old) ** 2 + (y - y_old) ** 2)  # Расстояние от P до A
+        # проекция находится за пределами отрезка (ближе к старой)
+        return math.sqrt((x - x_old) ** 2 + (y - y_old) ** 2)  # расстояние от центра окр-ти до старой точки
     elif t > 1:
-        # Проекция находится за пределами отрезка AB (ближе к B)
-        return math.sqrt((x - x_cur) ** 2 + (y - y_cur) ** 2)  # Расстояние от P до B
+        # проекция находится за пределами отрезка AB (ближе к новой)
+        return math.sqrt((x - x_cur) ** 2 + (y - y_cur) ** 2)  # расстояние от центра окр-ти до новой точки
     else:
-        # Проекция находится на отрезке AB
-        # Вычисляем координаты проекции
-        projection_x = x_old + t * (x_cur - x_old)
-        projection_y = y_old + t * (y_cur - y_old)
+        # проекция находится на отрезке
+        proj_x = x_old + t * (x_cur - x_old)
+        proj_y = y_old + t * (y_cur - y_old)
 
         # Вычисляем расстояние от P до проекции
-        return math.sqrt((x - projection_x) ** 2 + (y - projection_y) ** 2)
+        return math.sqrt((x - proj_x) ** 2 + (y - proj_y) ** 2)
 
 def is_answer(p):
+    # проверяем, является ли расстояние меньше радиуса, те пересекает ли отрезок окр-ть
     if p <= r:
         return True
     else:
@@ -97,7 +103,10 @@ y_old = y_cur
 shag(x_cur, y_cur, dx, dy)
 p = s(x, y, x_old, y_old, x_cur, y_cur)
 
-while is_answer(p) == False and n != lim:
+#первое перемещение и отражение 
+
+while is_answer(p) == False and n != lim and is_cycle(x_cur, y_cur) == False:
+    #цикл проверяет, не пересек ли прошлым ходом луч окр-ть, и переносит луч до следующего положения 
     n += 1
     x_old = x_cur
     y_old = y_cur
