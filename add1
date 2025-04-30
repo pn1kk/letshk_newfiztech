@@ -1,0 +1,110 @@
+import math
+
+a = float(input())
+b = float(input())
+l = float(input())
+x = float(input())
+y = float(input())
+r = float(input())
+k = math.radians(float(input()))
+
+x_cur = l
+y_cur = 0
+dx = math.cos(k)
+dy = math.sin(k)
+n = 0
+lim = 10**5
+
+def cycle(x_cur, y_cur):
+    if x_cur == l and y_cur == 0:
+        return True
+    else:
+        return False
+
+def shag(x_cur, y_cur, dx, dy):
+    if dx > 0:
+        if dy > 0:
+            if x_cur + (b-y_cur)*dx/dy <= a:
+                x_cur += (b-y_cur)*dx/dy
+                y_cur = b
+                dy = -dy
+            else:
+                y_cur = (a - x_cur) * dy/dx
+                x_cur = a
+                dx = -dx
+        else:
+            if x_cur + y_cur*dx/(-dy) <= a:
+                x_cur += y_cur*dx/(-dy)
+                y_cur = 0
+                dy = -dy
+            else:
+                y_cur += (a - x_cur) * (dy)/dx
+                x_cur = a
+                dx = -dx
+    else:
+        if dy >= 0:
+            if x_cur + (b - y_cur)*dx/dy > 0:
+                x_cur += (b - y_cur)*dx/dy
+                y_cur = b
+            else:
+                y_cur += x_cur*(-dx)/dy
+                x_cur = 0
+        else:
+            if x_cur + (b - y_cur)*dx/dy > 0:
+                x_cur += (b - y_cur)*dx/dy
+                y_cur = 0
+            else:
+                 y_cur += x_cur*(-dy)/dx
+                 x_cur = 0
+
+def s(x, y, x_old, y_old, x_cur, y_cur):
+        # 1. Вычисляем длину отрезка AB
+    segment_length_squared = (x_cur - x_old) ** 2 + (y_cur - y_old) ** 2
+    if segment_length_squared == 0:
+            # Отрезок выродился в точку.  Расстояние от точки до точки.
+        return math.sqrt((x - x_old) ** 2 + (y - y_old) ** 2)
+
+        # 2. Вычисляем проекцию точки P на прямую AB
+        # t - параметр, определяющий положение проекции на прямой AB.
+        # Если t < 0, то проекция находится за пределами отрезка AB (ближе к A).
+        # Если t > 1, то проекция находится за пределами отрезка AB (ближе к B).
+    t = ((x - x_old) * (x_cur - x_old) + (y - y_old) * (y_cur - y_old)) / segment_length_squared
+
+    # 3. Проверяем, находится ли проекция на отрезке AB
+    if t < 0:
+        # Проекция находится за пределами отрезка AB (ближе к A)
+        return math.sqrt((x - x_old) ** 2 + (y - y_old) ** 2)  # Расстояние от P до A
+    elif t > 1:
+        # Проекция находится за пределами отрезка AB (ближе к B)
+        return math.sqrt((x - x_cur) ** 2 + (y - y_cur) ** 2)  # Расстояние от P до B
+    else:
+        # Проекция находится на отрезке AB
+        # Вычисляем координаты проекции
+        projection_x = x_old + t * (x_cur - x_old)
+        projection_y = y_old + t * (y_cur - y_old)
+
+        # Вычисляем расстояние от P до проекции
+        return math.sqrt((x - projection_x) ** 2 + (y - projection_y) ** 2)
+
+def is_answer(p):
+    if p <= r:
+        return True
+    else:
+        return False
+
+x_old = x_cur
+y_old = y_cur
+shag(x_cur, y_cur, dx, dy)
+p = s(x, y, x_old, y_old, x_cur, y_cur)
+
+while is_answer(p) == False and n != lim:
+    n += 1
+    x_old = x_cur
+    y_old = y_cur
+    shag(x_cur, y_cur, dx, dy)
+    p = s(x, y, x_old, y_old, x_cur, y_cur)
+
+if n != lim:
+    print(n)
+else:
+    print('никогда не пересечет')
