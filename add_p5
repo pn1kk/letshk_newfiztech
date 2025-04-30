@@ -4,16 +4,16 @@ from torch.utils.data import DataLoader
 from torchvision import datasets
 from torchvision.transforms import ToTensor
 
-# Download training data from open datasets.
-training_data = datasets.FashionMNIST(
+# загружаем данные для тренировки из встроенного датасета 
+training_data = datasets.MNIST(
     root="data",
     train=True,
     download=True,
     transform=ToTensor(),
 )
 
-# Download test data from open datasets.
-test_data = datasets.FashionMNIST(
+# загружаем данные для теста из встроенного датасета 
+test_data = datasets.MNIST(
     root="data",
     train=False,
     download=True,
@@ -22,7 +22,7 @@ test_data = datasets.FashionMNIST(
 
 batch_size = 64
 
-# Create data loaders.
+# создаем модули для загрузки данных
 train_dataloader = DataLoader(training_data, batch_size=batch_size)
 test_dataloader = DataLoader(test_data, batch_size=batch_size)
 
@@ -34,7 +34,7 @@ for X, y in test_dataloader:
 device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
 print(f"Using {device} device")
 
-# Define model
+# создаем модель
 class NeuralNetwork(nn.Module):
     def __init__(self):
         super().__init__()
@@ -64,11 +64,11 @@ def train(dataloader, model, loss_fn, optimizer):
     for batch, (X, y) in enumerate(dataloader):
         X, y = X.to(device), y.to(device)
 
-        # Compute prediction error
+        # ошибка предсказания
         pred = model(X)
         loss = loss_fn(pred, y)
 
-        # Backpropagation
+        # загружаем информацию об ошибке
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
@@ -106,16 +106,16 @@ model = NeuralNetwork().to(device)
 model.load_state_dict(torch.load("model.pth", weights_only=True))
 
 classes = [
-    "T-shirt/top",
-    "Trouser",
-    "Pullover",
-    "Dress",
-    "Coat",
-    "Sandal",
-    "Shirt",
-    "Sneaker",
-    "Bag",
-    "Ankle boot",
+    "Zero",
+    "One",
+    "Two",
+    "Three",
+    "Four",
+    "Five",
+    "Six",
+    "Seven",
+    "Eight",
+    "Nine",
 ]
 
 model.eval()
@@ -125,3 +125,4 @@ with torch.no_grad():
     pred = model(x)
     predicted, actual = classes[pred[0].argmax(0)], classes[y]
     print(f'Predicted: "{predicted}", Actual: "{actual}"')
+# код создан аналогично примерному коду на официальном сайте pytorch
